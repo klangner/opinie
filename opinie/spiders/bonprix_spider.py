@@ -8,9 +8,10 @@ from opinie.items import ReviewItem
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.contrib.spiders.crawl import Rule, CrawlSpider
 from scrapy.http.request import Request
-from scrapy.selector import HtmlXPathSelector
 from scrapy.spider import BaseSpider
+from scrapy import log
 import json
+import re
 
 
 class BonprixSpider(CrawlSpider):
@@ -18,21 +19,29 @@ class BonprixSpider(CrawlSpider):
     allowed_domains = ["bonprix.pl"]
     start_urls = ["http://www.bonprix.pl"]
     rules = (
+        Rule(SgmlLinkExtractor(allow=('/produkt/.*')), callback='parse_product'),
         Rule(SgmlLinkExtractor(allow=())),
-        Rule(SgmlLinkExtractor(allow=('/produkt/*', )), callback='parse_item')
     )
+    product_url = 'http://www.bonprix.pl/produkt'
     
-    def parse_item(self, response):
-        hxs = HtmlXPathSelector(response)
-        sites = hxs.select('//ul/li')
+    def parse_product(self, response):
+        productId = re.search('(?<=productId:)\d+', response.body).group(0)
+        return Request(url=self.product_url + "/ajax/sortByDate?productId=" + productId,
+                       callback=self.parse_json)
+    
+    def parse_json(self, response):
+        reviews = json.loads(response.body_as_unicode())
+        log.msg("Found %d reviews" % len(reviews), level=log.INFO)
         items = []
-        for site in sites:
+        for review in reviews:
             item = ReviewItem()
-            item['title'] = site.select('a/text()').extract()
-            item['link'] = site.select('a/@href').extract()
-            item['desc'] = site.select('text()').extract()
+            item['id'] = "%s/%s#%s" % (self.product_url, review['productId'], review['id'])
+            item['text'] = review['opinion']
+            item['score'] = review['rating']
+            item['useful'] = review['useful']
+            item['notUseful'] = review['notUseful']
             items.append(item)
-        return items
+        return items    
     
     
 class BonprixProductSpider(BaseSpider):
@@ -41,10 +50,13 @@ class BonprixProductSpider(BaseSpider):
     '''
     name = "bptest"
     allowed_domains = ["bonprix.pl"]
-    start_urls = ["http://www.bonprix.pl/produkt/bluza-904911"]
+    start_urls = ["http://www.bonprix.pl/produkt/sweter-959734"]
+    product_url = 'http://www.bonprix.pl/produkt' 
+    
     
     def parse(self, response):
-        return Request(url="http://www.bonprix.pl/produkt/ajax/sortByDate?productId=22579",
+        productId = re.search('(?<=productId:)\d+', response.body).group(0)
+        return Request(url=self.product_url + "/ajax/sortByDate?productId=" + productId,
                        callback=self.parse_json)
     
     def parse_json(self, response):
@@ -52,10 +64,10 @@ class BonprixProductSpider(BaseSpider):
         items = []
         for review in reviews:
             item = ReviewItem()
-            item['id'] = review['id']
+            item['id'] = "%s/%s#%s" % (self.product_url, review['productId'], review['id'])
             item['text'] = review['opinion']
             item['score'] = review['rating']
             item['useful'] = review['useful']
-            item['useful'] = review['useful']
+            item['notUseful'] = review['notUseful']
             items.append(item)
         return items    
