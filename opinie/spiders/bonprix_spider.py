@@ -19,19 +19,24 @@ class BonprixSpider(CrawlSpider):
     allowed_domains = ["bonprix.pl"]
     start_urls = ["http://www.bonprix.pl"]
     rules = (
-        Rule(SgmlLinkExtractor(allow=('/produkt/.*')), callback='parse_product'),
+        Rule(SgmlLinkExtractor(allow=('/produkt/')), callback='parse_product'),
         Rule(SgmlLinkExtractor(allow=())),
     )
     product_url = 'http://www.bonprix.pl/produkt'
+    counter = 1
     
     def parse_product(self, response):
-        productId = re.search('(?<=productId:)\d+', response.body).group(0)
-        return Request(url=self.product_url + "/ajax/sortByDate?productId=" + productId,
+        m = re.search('(?<=productId:)\d+', response.body)
+        if m:
+            productId = m.group(0)
+            return Request(url=self.product_url + "/ajax/sortByDate?productId=" + productId,
                        callback=self.parse_json)
+        return []
     
     def parse_json(self, response):
         reviews = json.loads(response.body_as_unicode())
-        log.msg("Found %d reviews" % len(reviews), level=log.INFO)
+        log.msg("%d. Found %d reviews" % (self.counter, len(reviews)), level=log.INFO)
+        self.counter += 1
         items = []
         for review in reviews:
             item = ReviewItem()
