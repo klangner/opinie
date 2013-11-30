@@ -5,7 +5,9 @@
 
 from scrapy.item import Item, Field
 
-class DmozItem(Item):
-    title = Field()
-    link = Field()
-    desc = Field()
+class ReviewItem(Item):
+    id = Field()
+    text = Field()
+    score = Field()
+    useful = Field()
+    notUseful = Field()
