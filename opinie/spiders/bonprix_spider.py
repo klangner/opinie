@@ -26,6 +26,7 @@ class BonprixSpider(CrawlSpider):
     counter = 1
     
     def parse_product(self, response):
+#        log.msg(response.url, level=log.INFO)
         m = re.search('(?<=productId:)\d+', response.body)
         if m:
             productId = m.group(0)
