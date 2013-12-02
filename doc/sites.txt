@@ -1,0 +1,10 @@
+# Strony z opiniami w indeksie
+* bonprix.pl
+
+
+# Potencjalne strony do pobrania opini
+* ceneo.pl
+* allegro.pl
+* halens.pl
+* autocentrum.pl
+* opineo.pl

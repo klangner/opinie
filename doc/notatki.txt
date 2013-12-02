@@ -1,0 +1,3 @@
+* Niektóre opinie trzeba pobrać za pomocą wywołań ajax (przykłąd bonprix.pl)
+* Website może mieć wiele stron, ponieważ często te same strony produktowe 
+  wywoływane są z różnymi parametrami
