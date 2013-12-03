@@ -8,3 +8,4 @@
 * halens.pl
 * autocentrum.pl
 * opineo.pl
+* merlin.pl
