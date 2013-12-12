@@ -1,3 +1,8 @@
-* Niektóre opinie trzeba pobrać za pomocą wywołań ajax (przykłąd bonprix.pl)
+* Niektóre opinie trzeba pobrać za pomocą wywołań ajax (przykład bonprix.pl)
 * Website może mieć wiele stron, ponieważ często te same strony produktowe 
   wywoływane są z różnymi parametrami
+
+* Uruchamianie spider tak by chodził w tle i wylogowanie nie zabijało procesu
+nohup scrapy crawl <spider> &
+* Sprawdzenie stanu
+tail -f nohup.out
