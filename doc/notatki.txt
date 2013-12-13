@@ -2,7 +2,7 @@
 * Website może mieć wiele stron, ponieważ często te same strony produktowe 
   wywoływane są z różnymi parametrami
 
-* Uruchamianie spider tak by chodził w tle i wylogowanie nie zabijało procesu
-nohup scrapy crawl <spider> &
+* Uruchamia spider tak by chodził w tle i wylogowanie nie zabijało procesu
+nohup scrapy crawl <spider> -o output/spider.json -t json > output/log.txt&
 * Sprawdzenie stanu
 tail -f nohup.out

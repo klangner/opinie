@@ -12,6 +12,12 @@ from scrapy.spider import BaseSpider
 from scrapy import log
 import json
 import re
+from urlparse import urlparse
+
+
+def removeParamsFromUrl(url):
+    parsedUrl = urlparse(url)
+    return parsedUrl.scheme + "://" + parsedUrl.netloc + parsedUrl.path
 
 
 class BonprixSpider(CrawlSpider):
@@ -19,8 +25,9 @@ class BonprixSpider(CrawlSpider):
     allowed_domains = ["bonprix.pl"]
     start_urls = ["http://www.bonprix.pl"]
     rules = (
-        Rule(SgmlLinkExtractor(allow=('/produkt/')), callback='parse_product'),
-        Rule(SgmlLinkExtractor(allow=())),
+        Rule(SgmlLinkExtractor(allow=('/produkt/'), process_value=removeParamsFromUrl), 
+             callback='parse_product'),
+        Rule(SgmlLinkExtractor(allow=(), process_value=removeParamsFromUrl)),
     )
     product_url = 'http://www.bonprix.pl/produkt'
     counter = 1
